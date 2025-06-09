@@ -1,0 +1,62 @@
+#include<pic.h>
+#define LCD PORTD
+#define EN RE0
+#define RW RE1
+#define RS RE2
+int i;
+void delay(unsigned int a)
+{
+while(a--);
+}
+void pulse()
+{
+EN=1;
+delay(100);
+EN=0;
+delay(100);
+}
+void address(unsigned int a)
+{
+RS=0;
+RW=0;
+LCD=a;
+pulse();
+}
+void display(char b)
+{
+RS=1;
+RW=0;
+LCD=b;
+pulse();
+}
+void string(const char *p)
+{
+while(*p)
+{
+display(*p++);
+}
+}
+void main()
+{
+PORTE=0X00;
+TRISE=0X00;
+PORTD=0X00;
+TRISD=0X00;
+address(0x38);
+address(0x0e);
+i=eeprom_read(0x00);
+while(1)
+{
+for(;i<10;i++)
+{
+if(i==10)
+{
+i=0;
+}
+address(0x80);
+display(0x30+i);
+eeprom_write(0x00,i+1);
+delay(30000);
+}
+}
+}
